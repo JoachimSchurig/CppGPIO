@@ -41,6 +41,7 @@ unsigned long GPIOBase::peripherals_base = 0;
 unsigned long GPIOBase::peripherals_size = 0;
 
 bool GPIOBase::simulate = false;
+bool GPIOBase::want_full_mapping = false;
 bool GPIOBase::gpio_only = false;
 
 std::unique_ptr<unsigned long[]> GPIOBase::peripherals_sim;
@@ -522,6 +523,18 @@ GPIOBase::SoftThread::~SoftThread()
     // do not delete the thread, it is a unique_ptr and cleans up itself
 }
 
+bool GPIOBase::force_full_mapping()
+{
+    // already initialized? then check in which mode
+
+    if (peripherals_base || gpio_addr) return !gpio_only;
+
+    want_full_mapping = true;
+
+    // return true, even if the initialization might still fail if we are not root (with an exception)
+
+    return true;
+}
 
 void GPIOBase::init()
 {
@@ -554,12 +567,13 @@ void GPIOBase::init()
 
             Tools::AutoFile fd;
 
-            if (fd.open_nothrow("/dev/gpiomem", O_RDWR | O_SYNC)) {
+            if (!want_full_mapping && fd.open_nothrow("/dev/gpiomem", O_RDWR | O_SYNC)) {
 
                 gpio_addr = static_cast<volatile unsigned long*>(::mmap(nullptr, BLOCK_SIZE,
                                                                         (PROT_READ | PROT_WRITE),
                                                                         MAP_SHARED, *fd, 0));
                 if (gpio_addr == MAP_FAILED) throw GPIOError("mmap failed on /dev/gpiomem");
+                
                 gpio_only = true;
 
             } else {

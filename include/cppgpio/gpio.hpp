@@ -124,6 +124,17 @@ namespace GPIO {
 
         static bool simulation() { return simulate; }
 
+        /// Call before any instantiation of a GPIOBase object if you want to
+        /// force full register access via IO mapping even when /dev/gpiomem is
+        /// available. When you switch into this mode and are not running as root,
+        /// the first instantiation of a GPIOBase object will throw an exception.
+        /// When you are root, you gain access on all registers of the bcm2835, not
+        /// only on I/O pins, but with the current implementation of this library the
+        /// only advantage is that you can then set the PWM clock frequency and use
+        /// hardware PWM on two outputs.
+
+        static bool force_full_mapping();
+
         /// sets the I/O mode of a gpio
 
         void mode(unsigned int gpio, GPIO_MODE mode) const;
@@ -237,6 +248,7 @@ namespace GPIO {
         };
 
         static bool simulate;
+        static bool want_full_mapping;
         static bool gpio_only;
         static constexpr unsigned long BLOCK_SIZE = 4 * 1024;
         static constexpr unsigned long PAGE_SIZE  = 4 * 1024;

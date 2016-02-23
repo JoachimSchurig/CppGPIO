@@ -38,26 +38,44 @@ CXXFLAGS     := -Wall -O2 -fPIC -std=gnu++14 -pthread -I $(includepref)
 LDFLAGS      :=
 LDLIBS       := -lpthread -lcppgpio
 
+SUBDIRS      := $(sourcepref)
+
+MAKE_SUBDIRS = for subdir in $(SUBDIRS); do \
+                    (cd $$subdir && $(MAKE) $@); \
+                    if [ $$? -ne 0 ]; then \
+                        exit -1; \
+                    fi; \
+                done
+
+
 all: lib
 
-lib: $(OBJS)
+
+.PHONY: all lib depend clean dist-clean install uninstall
+
+
+lib:
+	+@$(MAKE_SUBDIRS)
 	$(LIBTOOL) $(libnamea) $(OBJS)
 	$(CXX) -shared -Wl,-soname,$(libnameso) -o $(libnamesoverx) $(OBJS)
 
-$(appname): ./demo.o
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(appname) ./demo.o $(LDLIBS)
+$(appname): demo.o
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(appname) demo.o $(LDLIBS)
+
+clean:
+	+@$(MAKE_SUBDIRS)
+	$(RM) demo.o demo
 
 depend: .depend
+	+@$(MAKE_SUBDIRS)
 
-.depend: $(SRCS)
-	rm -f ./.depend
+.depend: demo.cpp
+	$(RM) ./.depend
 	$(CXX) $(CXXFLAGS) -MM $^ >> ./.depend;
 	
-clean:
-	rm -f $(OBJS) ./demo.o
-	
 dist-clean: clean uninstall
-	rm -f *~ .depend
+	+@$(MAKE_SUBDIRS)
+	$(RM) *~ .depend
 
 install: uninstall
 	$(MKDIR) $(CHEADERINST)
@@ -66,24 +84,24 @@ install: uninstall
 	$(CHMOD) 0644 $(CHEADERINST)/$(cnvheader)
 	$(MKDIR) $(HEADERINST)
 	$(CP) $(HDRS) $(HEADERINST)
-	$(CD) $(HEADERINST); $(CHOWN) root:root $(relheaderfiles)
-	$(CD) $(HEADERINST); $(CHMOD) 0644 $(relheaderfiles)
+	$(CD) $(HEADERINST) && $(CHOWN) root:root $(relheaderfiles)
+	$(CD) $(HEADERINST) && $(CHMOD) 0644 $(relheaderfiles)
 	$(MKDIR) $(LIBINST)
 	$(CP) $(libnamea) $(LIBINST)
-	$(CD) $(LIBINST); $(CHOWN) root:root $(libnamea)
-	$(CD) $(LIBINST); $(CHMOD) 0755 $(libnamea)
+	$(CD) $(LIBINST) && $(CHOWN) root:root $(libnamea)
+	$(CD) $(LIBINST) && $(CHMOD) 0755 $(libnamea)
 	$(CP) $(libnamesoverx) $(LIBINST)
-	$(CD) $(LIBINST); $(CHOWN) root:root $(libnamesoverx)
-	$(CD) $(LIBINST); $(CHMOD) 0755 $(libnamesoverx)
-	$(CD) $(LIBINST); $(LN) $(libnamesoverx) $(libnamesover)
-	$(CD) $(LIBINST); $(LN) $(libnamesover) $(libnameso)
+	$(CD) $(LIBINST) && $(CHOWN) root:root $(libnamesoverx)
+	$(CD) $(LIBINST) && $(CHMOD) 0755 $(libnamesoverx)
+	$(CD) $(LIBINST) && $(LN) $(libnamesoverx) $(libnamesover)
+	$(CD) $(LIBINST) && $(LN) $(libnamesover) $(libnameso)
 
 uninstall:
-	$(CD) $(CHEADERINST); $(RM) $(cnvheader)
-	$(CD) $(HEADERINST); $(RM) $(relheaderfiles)
-	$(CD) $(LIBINST); $(RM) $(libnamea)
-	$(CD) $(LIBINST); $(RM) $(libnamesoverx)
-	$(CD) $(LIBINST); $(RM) $(libnamesover)
-	$(CD) $(LIBINST); $(RM) $(libnameso)
+	$(CD) $(CHEADERINST) && $(RM) $(cnvheader)
+	$(CD) $(HEADERINST) && $(RM) $(relheaderfiles)
+	$(CD) $(LIBINST) && $(RM) $(libnamea)
+	$(CD) $(LIBINST) && $(RM) $(libnamesoverx)
+	$(CD) $(LIBINST) && $(RM) $(libnamesover)
+	$(CD) $(LIBINST) && $(RM) $(libnameso)
 
-include .depend
+-include .depend

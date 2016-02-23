@@ -122,7 +122,8 @@ void buttontest()
 
     dial.set_range(0, 100);
 
-    // and start the event detection of the dial
+    // and start the event detection of the dial (even if it is only
+    // used internally to increment the counter)
 
     dial.start();
 
@@ -233,8 +234,111 @@ private:
 };
 
 
+void ioperformance()
+{
+    // bind gpio 18
+
+    DigitalOut out(18);
+
+    // Test the maximum output frequency we can reach on a GPIO output by simply switching it on and off.
+
+    int64_t one_loop = 0;
+    {
+        auto start = std::chrono::steady_clock::now();
+        for (int x = 0; x < 10000000; ++x) {
+            out.on();
+            out.off();
+        }
+        auto end = std::chrono::steady_clock::now();
+        int64_t ns = std::chrono::duration_cast<std::chrono::nanoseconds>(end-start).count();
+        one_loop = ns / 10000000;
+        std::cout << ns << " nanoseconds for 10.000.000 IOPS = "
+        << one_loop << " nanoseconds per one IOP, = "
+        << 1000*1000*1000/(ns/10000000) << " Hz" << std::endl;
+    }
+
+    // Test again, but this time with 10 output switches in one loop - to see the effect the
+    // loop control has
+
+    {
+        auto start = std::chrono::steady_clock::now();
+        for (int x = 0; x < 1000000; ++x) {
+            out.on();
+            out.off();
+            out.on();
+            out.off();
+            out.on();
+            out.off();
+            out.on();
+            out.off();
+            out.on();
+            out.off();
+            out.on();
+            out.off();
+            out.on();
+            out.off();
+            out.on();
+            out.off();
+            out.on();
+            out.off();
+            out.on();
+            out.off();
+        }
+        auto end = std::chrono::steady_clock::now();
+        int64_t ns = std::chrono::duration_cast<std::chrono::nanoseconds>(end-start).count();
+        one_loop = ns / 10000000;
+        std::cout << ns << " nanoseconds for 10.000.000 IOPS = "
+        << one_loop << " nanoseconds per one IOP, = "
+        << 1000*1000*1000/(ns/10000000) << " Hz" << std::endl;
+    }
+
+    // Determine how long a minimum sleep() request of 1 nanoseconds really takes until it returns
+    // (compare result to nanoseconds measured in above loop)
+
+    {
+        auto start = std::chrono::steady_clock::now();
+        auto sleep = std::chrono::nanoseconds(1);
+        for (int x = 0; x < 100000; ++x) {
+            std::this_thread::sleep_for(sleep);
+            out.on();
+            out.off();
+        }
+        auto end = std::chrono::steady_clock::now();
+        int64_t ns = std::chrono::duration_cast<std::chrono::nanoseconds>(end-start).count();
+        std::cout << ns << " nanoseconds for 100.000 IOPS with 1ns sleep each = "
+        << ns / 100000 << " nanoseconds per one IOP with 1ns sleep, = "
+        << 1000*1000*1000/(ns/100000) << " Hz" << std::endl;
+
+        auto minsleep = ns / 100000 - one_loop;
+        std::cout << "minimum sleep time is " << minsleep << " nanoseconds" << std::endl;
+    }
+}
+
+
+void pwmtest()
+{
+    std::cout << "testing PWM output" << std::endl;
+
+    PWMOut pwm(23, 100, 0);
+    for (int l = 0; l < 20; ++l) {
+        for (int p = 0; p < 100; ++p) {
+            pwm.set_ratio(p);
+            std::this_thread::sleep_for(std::chrono::microseconds(5000));
+        }
+        for (int p = 100; p > 0; --p) {
+            pwm.set_ratio(p);
+            std::this_thread::sleep_for(std::chrono::microseconds(5000));
+        }
+    }
+}
+
+
 int main(int argc, const char * argv[])
 {
+    ioperformance();
+
+//  pwmtest();
+
     lcdtest();
 
 //  buttontest();
