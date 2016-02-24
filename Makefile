@@ -16,6 +16,7 @@ LN           := ln -sf
 RM           := rm -f
 RMDIR        := rm -rf
 MAKE         := make
+LDCONFIG     := ldconfig
 
 sourcepref   := src
 includepref  := include
@@ -95,6 +96,7 @@ install: uninstall
 	$(CD) $(LIBINST) && $(CHMOD) 0755 $(libnamesoverx)
 	$(CD) $(LIBINST) && $(LN) $(libnamesoverx) $(libnamesover)
 	$(CD) $(LIBINST) && $(LN) $(libnamesover) $(libnameso)
+	$(LDCONFIG)
 
 uninstall:
 	$(CD) $(CHEADERINST) && $(RM) $(cnvheader)
@@ -103,5 +105,6 @@ uninstall:
 	$(CD) $(LIBINST) && $(RM) $(libnamesoverx)
 	$(CD) $(LIBINST) && $(RM) $(libnamesover)
 	$(CD) $(LIBINST) && $(RM) $(libnameso)
+	$(LDCONFIG)
 
 -include .depend

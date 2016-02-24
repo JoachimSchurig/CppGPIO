@@ -77,7 +77,7 @@ The following examples are taken from demo.cpp in this project.
 
 using namespace GPIO;
 
-void main()
+int main()
 {
   // use gpio #18
 
@@ -115,7 +115,7 @@ It could e.g. dim a LED on and off.
 
 using namespace GPIO;
 
-void main()
+int main()
 {
   // create PWM on GPIO 23, set range to 100, inital value to 0
   
@@ -151,6 +151,7 @@ event occurs. Remark there is no polling, and no control loop.
 ```
 #include <string>
 #include <chrono>
+#include <stdlib.h>
 #include <cppgpio.hpp>
 
 using namespace GPIO;
@@ -192,14 +193,12 @@ private:
     
     void dialed(bool up, long value)
     {
-        std::string out;
-        if (value == 42) out = "Goodbye!";
-        else {
-            out = "Value: ";
-            out += std::to_string(value);
-        }
+        std::string out = "Value: ";
+        out += std::to_string(value);
         lcd.write(0, 0, out);
+
         if (value == 42) {
+            lcd.write(0, 0, "Goodbye");
             lcd.write(1, 0, "");
             std::this_thread::sleep_for(std::chrono::seconds(2));
             lcd.backlight(false);
@@ -221,7 +220,7 @@ private:
 
 
 
-void main()
+int main()
 {
 
   Rotary1 rotary;

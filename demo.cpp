@@ -206,14 +206,12 @@ private:
     
     void dialed(bool up, long value)
     {
-        std::string out;
-        if (value == 42) out = "Goodbye!";
-        else {
-            out = "Value: ";
-            out += std::to_string(value);
-        }
+        std::string out = "Value: ";
+        out += std::to_string(value);
         lcd.write(0, 0, out);
+
         if (value == 42) {
+            lcd.write(0, 0, "Goodbye!");
             lcd.write(1, 0, "");
             std::this_thread::sleep_for(std::chrono::seconds(2));
             lcd.backlight(false);
@@ -320,15 +318,19 @@ void pwmtest()
     std::cout << "testing PWM output" << std::endl;
 
     PWMOut pwm(23, 100, 0);
+
     for (int l = 0; l < 20; ++l) {
+
         for (int p = 0; p < 100; ++p) {
             pwm.set_ratio(p);
             std::this_thread::sleep_for(std::chrono::microseconds(5000));
         }
+        
         for (int p = 100; p > 0; --p) {
             pwm.set_ratio(p);
             std::this_thread::sleep_for(std::chrono::microseconds(5000));
         }
+
     }
 }
 
