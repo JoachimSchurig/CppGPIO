@@ -21,7 +21,12 @@ OBJS         := $(SRCS:.cpp=.o)
 
 CXX          := g++
 CXXFLAGS     := -Wall -O2 -fPIC -std=gnu++14 -pthread -I $(includepref)
-LDFLAGS      :=
+
+ifneq ("$(wildcard /usr/include/linux/i2c-dev.h)","")
+CXXFLAGS     += -DHAVE_I2C_HEADERS
+endif
+
+LDFLAGS :=
 LDLIBS       :=
 
 

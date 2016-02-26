@@ -46,7 +46,7 @@ namespace Tools {
     template<class VALUE>
     void byteswap(VALUE& value)
     {
-        if (!std::is_scalar<VALUE>::value) throw ToolsError("need scalar type");
+        static_assert(std::is_scalar<VALUE>::value, "need scalar type");
         unsigned int len = sizeof(VALUE);
         uint8_t* p = (unsigned char*)&value;
         for (unsigned int i = 0, e = len-1; i < len/2; ++i, --e) {
@@ -70,7 +70,7 @@ namespace Tools {
         template <class VALUE>
         void read(VALUE& value) const
         {
-            if (!std::is_scalar<VALUE>::value) throw ToolsError("need scalar type");
+            static_assert(std::is_scalar<VALUE>::value, "need scalar type");
             read(&value, sizeof(VALUE));
         }
         void write(const void *buf, size_t count) const;
@@ -79,7 +79,7 @@ namespace Tools {
         template <class VALUE>
         void write(const VALUE& value) const
         {
-            if (!std::is_scalar<VALUE>::value) throw ToolsError("need scalar type");
+            static_assert(std::is_scalar<VALUE>::value, "need scalar type");
             write(&value, sizeof(VALUE));
         }
         off_t seek(off_t offset, int whence);

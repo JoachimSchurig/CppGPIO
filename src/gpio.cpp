@@ -35,6 +35,8 @@
 
 using namespace GPIO;
 
+ObjectBase::~ObjectBase() = default;
+
 std::once_flag GPIOBase::initlock;
 
 unsigned long GPIOBase::peripherals_base = 0;

@@ -29,8 +29,7 @@
 #include <cerrno>
 #include <sys/ioctl.h>
 #include <fcntl.h>
-#ifdef __linux
-#define HAVE_I2C_HEADERS
+#ifdef HAVE_I2C_HEADERS
 #include <linux/i2c-dev.h>
 #include <linux/i2c.h>
 #endif
@@ -44,34 +43,18 @@ using namespace GPIO;
 
 typedef std::runtime_error I2CError;
 
+#ifndef HAVE_I2C_HEADERS
 enum {
-#ifndef I2C_SLAVE
     I2C_SLAVE                   = 0x0703,
-#endif
-#ifndef I2C_SMBUS
     I2C_SMBUS                   = 0x0720,
-#endif
-#ifndef I2C_SMBUS_READ
     I2C_SMBUS_READ              = 1,
-#endif
-#ifndef I2C_SMBUS_WRITE
     I2C_SMBUS_WRITE             = 0,
-#endif
-#ifndef I2C_SMBUS_BLOCK_MAX
     I2C_SMBUS_BLOCK_MAX         = 32,
-#endif
-#ifndef I2C_SMBUS_BYTE
     I2C_SMBUS_BYTE              = 1,
-#endif
-#ifndef I2C_SMBUS_BYTE_DATA
     I2C_SMBUS_BYTE_DATA         = 2,
-#endif
-#ifndef I2C_SMBUS_WORD_DATA
     I2C_SMBUS_WORD_DATA         = 3,
-#endif
 };
 
-#ifndef HAVE_I2C_HEADERS
 union i2c_smbus_data {
     uint8_t byte;
     uint16_t word;

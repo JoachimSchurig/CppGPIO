@@ -35,7 +35,7 @@ libnamesover := $(libnameso).1
 libnamesoverx:= $(libnameso).1.0.0
 
 CXX          := g++
-CXXFLAGS     := -Wall -O2 -fPIC -std=gnu++14 -pthread -I $(includepref)
+CXXFLAGS     := -Wall -O2 -std=gnu++14 -pthread -I $(includepref)
 LDFLAGS      :=
 LDLIBS       := -lpthread -lcppgpio
 
@@ -78,7 +78,7 @@ dist-clean: clean uninstall
 	+@$(MAKE_SUBDIRS)
 	$(RM) *~ .depend
 
-install: uninstall
+install:
 	$(MKDIR) $(CHEADERINST)
 	$(CP) $(includepref)/$(cnvheader) $(CHEADERINST)
 	$(CHOWN) root:root $(CHEADERINST)/$(cnvheader)

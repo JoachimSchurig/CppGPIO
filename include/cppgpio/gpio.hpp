@@ -56,8 +56,8 @@ namespace GPIO {
     
     class ObjectBase {
     public:
-        ObjectBase() {}
-        virtual ~ObjectBase() {}
+        ObjectBase() = default;
+        virtual ~ObjectBase() = 0;
     };
 
     typedef std::unique_ptr<ObjectBase> UniqueObjectBase;
