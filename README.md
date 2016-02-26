@@ -5,9 +5,9 @@ C++14 GPIO library for Raspberry Pi and other embedded systems
 CppGPIO is a C++ library for the GPIOs of embedded systems like the Raspberry Pi written entirely in the
 modern C++ dialect C++14.
 
-With the current source it only works on the Pi, but it has enough abstraction to be ported to other boards.
+It provides a fallback to C++11 however. Please read below.
 
-CppGPIO is a pure C++14 library. You cannot use it from C nor from non-C++14 capable compilers.
+With the current source CppGPIO only works on the Pi, but it has enough abstraction to be ported to other boards.
 
 It implements a high speed low level access on the GPIO pins of the embedded CPU, much like the C
 libraries like [wiringPi](http://wiringpi.com) or the [bcm2835](http://www.airspayce.com/mikem/bcm2835/) library.
@@ -28,9 +28,21 @@ of e.g. a switch, but can simply register a function from your own class that wi
 when the state changes. This sounds complicated but is actually quite simple with C++11/14 features like lambda
 expressions. The demo.cpp file has samples for this.
 
-The speed of the library is at the upper limit of the hardware capabilities of the Raspberry Pi. Only 12 
+The speed of the library is at the upper limit of the hardware capabilities of the Raspberry Pi (2). Only 12 
 nanoseconds are needed to switch an output pin on or off. This results in a 44.67 Mhz square wave output
 just by soft control.
+
+### C++11 fallback
+CppGPIO compiles with any C++11 compiler, as the only (but important) feature used from C++14 is
+std::make_unique<>(), and the library provides a local copy of the standard implementation of that
+feature. The main reason for this is that this provides support for the previous Raspian version,
+based on debian wheezy, once you install g++-4.8 with `sudo apt-get install g++-4.8` (which is available on
+wheezy). On wheezy, you then need however specify the newer compiler explicitly, e.g. by changing the Makefiles
+supplied with this project to explicitly call g++-4.8 instead of g++ .
+
+In result, CppGPIO is a pure C++11 library. You cannot use it from C nor from non-C++11 capable compilers.
+
+
 
 ### How to install
 Just clone a revision from here, and get into the source directory and type
@@ -50,7 +62,8 @@ to the files in which you want to use the functionality. For proper linking, you
 ```
 -lcppgpio
 ```
-to your linker arguments. It will normally be added as a shared library, but if you want to force static linking, it provides a static version as well.
+to your linker arguments. It will normally be added as a shared library, but if you want to force static linking,
+it provides a static version as well.
 
 ### Documentation
 All header files have fully commented public and protected methods. When using IDEs like Eclipse or XCode, you get
@@ -99,7 +112,7 @@ int main()
 }
 ```
 When DigitalOut goes out of scope, the port is automatically 
-reset to input mode and any resource associated to it is freed
+reset to input mode and any resource associated with it is freed
 
 #### Example with a PWM output
 In the following example we output a PWM signal to a port, not

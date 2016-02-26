@@ -18,14 +18,14 @@ RMDIR        := rm -rf
 MAKE         := make
 LDCONFIG     := ldconfig
 
-sourcepref   := src
-includepref  := include
-headerpref   := include/cppgpio
-SRCS         := $(shell find $(sourcepref) -maxdepth 1 -name "*.cpp")
+sourceprefix := src
+includeprefix:= include
+headerprefix := include/cppgpio
+SRCS         := $(shell find $(sourceprefix) -maxdepth 1 -name "*.cpp")
 SRCS         := $(SRCS:./%=%)
-HDRS         := $(shell find $(headerpref) -maxdepth 1 -name "*.hpp")
+HDRS         := $(shell find $(headerprefix) -maxdepth 1 -name "*.hpp")
 HDRS         := $(HDRS:./%=%)
-relheaderfiles:= $(HDRS:$(headerpref)/%=%)
+relheaderfiles:= $(HDRS:$(headerprefix)/%=%)
 cnvheader    := cppgpio.hpp
 OBJS         := $(SRCS:.cpp=.o)
 libname      := cppgpio
@@ -35,11 +35,11 @@ libnamesover := $(libnameso).1
 libnamesoverx:= $(libnameso).1.0.0
 
 CXX          := g++
-CXXFLAGS     := -Wall -O2 -std=gnu++14 -pthread -I $(includepref)
+CXXFLAGS     := -Wall -O2 -std=c++11 -pthread
 LDFLAGS      :=
 LDLIBS       := -lpthread -lcppgpio
 
-SUBDIRS      := $(sourcepref)
+SUBDIRS      := $(sourceprefix)
 
 MAKE_SUBDIRS = for subdir in $(SUBDIRS); do \
                     (cd $$subdir && $(MAKE) $@); \
@@ -80,7 +80,7 @@ dist-clean: clean uninstall
 
 install:
 	$(MKDIR) $(CHEADERINST)
-	$(CP) $(includepref)/$(cnvheader) $(CHEADERINST)
+	$(CP) $(includeprefix)/$(cnvheader) $(CHEADERINST)
 	$(CHOWN) root:root $(CHEADERINST)/$(cnvheader)
 	$(CHMOD) 0644 $(CHEADERINST)/$(cnvheader)
 	$(MKDIR) $(HEADERINST)

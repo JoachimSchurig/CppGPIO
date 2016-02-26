@@ -41,14 +41,14 @@ namespace Tools {
         using runtime_error::runtime_error;
     };
 
-    /// Byte swap any scalar type. Throws if type is not scalar.
+    /// Byte swap any scalar type. Gives compiler error if type is not scalar.
 
     template<class VALUE>
     void byteswap(VALUE& value)
     {
         static_assert(std::is_scalar<VALUE>::value, "need scalar type");
         unsigned int len = sizeof(VALUE);
-        uint8_t* p = (unsigned char*)&value;
+        uint8_t* p = (uint8_t*)&value;
         for (unsigned int i = 0, e = len-1; i < len/2; ++i, --e) {
             std::swap(p[i], p[e]);
         }

@@ -31,7 +31,8 @@
 
 #include <cppgpio/lcd.hpp>
 #include <cppgpio/i2c.hpp>
-#include <cppgpio/tools.hpp>
+
+#include "tools.hpp"
 
 
 using namespace GPIO;

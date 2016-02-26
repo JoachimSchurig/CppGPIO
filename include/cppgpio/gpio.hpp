@@ -45,7 +45,9 @@
 
 namespace GPIO {
     
-    typedef std::runtime_error GPIOError;
+    class GPIOError : public std::runtime_error {
+        using std::runtime_error::runtime_error;
+    };
     typedef std::mutex Mutex;
     typedef std::lock_guard<Mutex> Lock;
     typedef std::recursive_mutex RecursiveMutex;

@@ -103,9 +103,9 @@ namespace GPIO {
         template <class VALUE>
         void write(const VALUE& value, uint8_t bits) const
         {
-            if (!std::is_scalar<VALUE>::value) throw GPIOError("need scalar type");
-            if (bits > sizeof(value)*8) throw GPIOError("bits exceed value type's size");
-
+            static_assert(std::is_scalar<VALUE>::value, "need scalar type");
+            static_assert(bits > sizeof(value)*8, "bits exceed value type's size");
+            
             latch(false);
             VALUE mask;
             if (m_direction == DIRECTION::LSBFIRST) mask = 1;

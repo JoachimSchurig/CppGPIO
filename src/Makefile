@@ -10,17 +10,17 @@ RM           := rm -f
 RMDIR        := rm -rf
 MAKE         := make
 
-sourcepref   := ./
-includepref  := ../include
-headerpref   := ../include/cppgpio
-SRCS         := $(shell find $(sourcepref) -maxdepth 1 -name "*.cpp")
+sourceprefix := ./
+includeprefix:= ../include
+headerprefix := ../include/cppgpio
+SRCS         := $(shell find $(sourceprefix) -maxdepth 1 -name "*.cpp")
 SRCS         := $(SRCS:./%=%)
-HDRS         := $(shell find $(headerpref) -maxdepth 1 -name "*.hpp")
+HDRS         := $(shell find $(headerprefix) -maxdepth 1 -name "*.hpp")
 HDRS         := $(HDRS:./%=%)
 OBJS         := $(SRCS:.cpp=.o)
 
 CXX          := g++
-CXXFLAGS     := -Wall -O2 -fPIC -std=gnu++14 -pthread -I $(includepref)
+CXXFLAGS     := -Wall -O2 -fPIC -std=c++11 -pthread -I $(includeprefix)
 
 ifneq ("$(wildcard /usr/include/linux/i2c-dev.h)","")
 CXXFLAGS     += -DHAVE_I2C_HEADERS

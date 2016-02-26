@@ -29,7 +29,12 @@
 #include <memory>
 
 #include <cppgpio/gpio.hpp>
-#include <cppgpio/tools.hpp>
+#include "tools.hpp"
+
+#if __cplusplus <= 201103L
+// helper if the current compiler only supports C++11
+#include "make_unique.hpp"
+#endif
 
 
 

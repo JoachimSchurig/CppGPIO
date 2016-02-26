@@ -49,12 +49,12 @@ namespace GPIO {
     public:
 
         /// Constructs a HitachiLCDBase object, using 6 GPIO ports to connect to the
-        /// display (4 data lines, and one RS and one STROBE line).
+        /// display (4 data lines, and one RS and one EN / STROBE line).
         /// rows and cols specify the dimensions of the display, rows is limited from 1..4,
         /// cols are limited from 1..40 (and should of course match the physical dimensions
         /// of your display)
 
-        HitachiLCDBase(unsigned int rs, unsigned int strobe,
+        HitachiLCDBase(unsigned int rs, unsigned int en,
                        unsigned int d4, unsigned int d5, unsigned int d6, unsigned int d7);
 
         /// Constructs a HitachiLCDBase object with the display connected via an I2C bus
@@ -127,13 +127,13 @@ namespace GPIO {
     public:
 
         /// Constructs a HitachiLCD object, using 6 GPIO ports to connect to the
-        /// display (4 data lines, and one RS and one STROBE line).
+        /// display (4 data lines, and one RS and one EN / STROBE line).
         /// rows and cols specify the dimensions of the display, rows is limited from 1..4,
         /// cols are limited from 1..40 (and should of course match the physical dimensions
         /// of your display)
 
         HitachiLCD(unsigned int rows, unsigned int cols,
-                   unsigned int rs, unsigned int strobe,
+                   unsigned int rs, unsigned int en,
                    unsigned int d4, unsigned int d5,
                    unsigned int d6, unsigned int d7);
 
