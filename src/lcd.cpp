@@ -528,44 +528,45 @@ void HitachiLCD::fill_line()
     fill_space(m_cols - m_x);
 }
 
-void HitachiLCD::write(const std::string& s)
+std::size_t HitachiLCD::write(const std::wstring& ws)
 {
     RecursiveLock rlock(recursivemutex);
-//#ifndef __GNUC__
+    for (auto ch : ws) write(ch);
+    return ws.size();
+}
+
+std::size_t HitachiLCD::write(const std::string& s)
+{
+    RecursiveLock rlock(recursivemutex);
+    //#ifndef __GNUC__
 #if !defined(__GNUC__)
     std::wstring ws = utf8convert.from_bytes(s);
 #else
     // GCC does not yet support <codecvt> ...
     std::wstring ws;
-//  ws += 'a'; // this crashes g++, at least in gnu++1y mode!
+    //  ws += 'a'; // this crashes g++, at least in gnu++1y mode!
     ws.clear(); // therefore keep the clear() here.. it avoids the crash in from_utf8()
     Tools::from_utf8(s, ws);
 #endif
-    for (auto ch : ws) write(ch);
-}
-
-void HitachiLCD::write(const std::wstring& ws)
-{
-    RecursiveLock rlock(recursivemutex);
-    for (auto ch : ws) write(ch);
+    return write(ws);
 }
 
 void HitachiLCD::write(unsigned int row, unsigned int col, const std::string& s, unsigned int width)
 {
     RecursiveLock rlock(recursivemutex);
     pos(row, col);
-    write(s);
+    std::size_t len = write(s);
     if (m_fill) fill_line();
-    else if (width > s.length()) fill_space(width - static_cast<unsigned int>(s.length()));
+    else if (width > len) fill_space(width - static_cast<unsigned int>(len));
 }
 
 void HitachiLCD::write(unsigned int row, unsigned int col, const std::wstring& ws, unsigned int width)
 {
     RecursiveLock rlock(recursivemutex);
     pos(row, col);
-    write(ws);
+    std::size_t len = write(ws);
     if (m_fill) fill_line();
-    else if (width > ws.length()) fill_space(width - static_cast<unsigned int>(ws.length()));
+    else if (width > len) fill_space(width - static_cast<unsigned int>(len));
 }
 
 void HitachiLCD::chardef(unsigned int index, const unsigned char data[8])

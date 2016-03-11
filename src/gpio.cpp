@@ -3,7 +3,7 @@
 //
 //  Copyright © 2016 Joachim Schurig. All rights reserved.
 //
-//  Redistribution and use                                                             r5tr in source and binary forms, with or without
+//  Redistribution and use in source and binary forms, with or without
 //  modification, are permitted provided that the following conditions are met:
 //
 //  1. Redistributions of source code must retain the above copyright notice, this
@@ -271,6 +271,7 @@ void GPIOBase::int_set_mode(unsigned int gpio, FSEL mode)
     // (and thus removing all ALT and output bits)
 
     *(gpio_addr + ((gpio) / 10)) &= ~(7 << (((gpio)%10)*3));
+    
     if (mode != FSEL::INPUT) {
 
         // then set the mode
@@ -642,14 +643,14 @@ void GPIOBase::init()
 
         } else {
 
-            gpio_addr   = peripherals + GPIO_BASE  / 4;
-            pwm_addr    = peripherals + GPIO_PWM   / 4;
-            clk_addr    = peripherals + CLOCK_BASE / 4;
-            pads_addr   = peripherals + GPIO_PADS  / 4;
-            spi0_addr   = peripherals + SPI0_BASE  / 4;
-            bsc0_addr   = peripherals + BSC0_BASE  / 4;
-            bsc1_addr   = peripherals + BSC1_BASE  / 4;
-            st_addr     = peripherals + ST_BASE    / 4;
+            gpio_addr   = peripherals + GPIO_BASE  / sizeof(peripherals);
+            pwm_addr    = peripherals + GPIO_PWM   / sizeof(peripherals);
+            clk_addr    = peripherals + CLOCK_BASE / sizeof(peripherals);
+            pads_addr   = peripherals + GPIO_PADS  / sizeof(peripherals);
+            spi0_addr   = peripherals + SPI0_BASE  / sizeof(peripherals);
+            bsc0_addr   = peripherals + BSC0_BASE  / sizeof(peripherals);
+            bsc1_addr   = peripherals + BSC1_BASE  / sizeof(peripherals);
+            st_addr     = peripherals + ST_BASE    / sizeof(peripherals);
             
         }
     }

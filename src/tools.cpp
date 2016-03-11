@@ -63,15 +63,6 @@ ssize_t AutoFile::read(void *buf, size_t count) const
     return rb;
 }
 
-std::string AutoFile::read(size_t count) const
-{
-    std::unique_ptr<std::string::value_type[]> rbuf = std::make_unique<std::string::value_type[]>(count);
-    ssize_t rb = read(rbuf.get(), count);
-    if (rb < 0) throw ToolsError(std::string("cannot read file: ") + std::strerror(errno));
-    std::string s(rbuf.get(), rb);
-    return s;
-}
-
 void AutoFile::write(const void *buf, size_t count) const
 {
     ssize_t wb = ::write(m_fd, buf, count);

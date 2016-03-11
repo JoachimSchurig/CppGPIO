@@ -30,8 +30,8 @@
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #ifdef HAVE_I2C_HEADERS
-#include <linux/i2c-dev.h>
 #include <linux/i2c.h>
+#include <linux/i2c-dev.h>
 #endif
 #include <unistd.h>
 #include <stdexcept>
@@ -41,7 +41,10 @@
 
 using namespace GPIO;
 
-typedef std::runtime_error I2CError;
+class I2CError : public std::runtime_error
+{
+    using std::runtime_error::runtime_error;
+};
 
 #ifndef HAVE_I2C_HEADERS
 enum {
@@ -72,7 +75,6 @@ struct i2c_smbus_ioctl_data {
 static inline void i2c_smbus(int fd, char rw, uint8_t command, int size, union i2c_smbus_data *data)
 {
     i2c_smbus_ioctl_data args;
-
     args.read_write = rw;
     args.command = command;
     args.size = size;

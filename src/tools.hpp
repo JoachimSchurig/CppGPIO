@@ -66,7 +66,6 @@ namespace Tools {
         void open(const std::string& name, int mode = O_RDWR);
         bool open_nothrow(const std::string& name, int mode = O_RDWR) noexcept;
         ssize_t read(void *buf, size_t count) const;
-        std::string read(size_t count) const;
         template <class VALUE>
         void read(VALUE& value) const
         {

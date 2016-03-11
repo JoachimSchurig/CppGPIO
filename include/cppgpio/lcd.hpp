@@ -213,13 +213,13 @@ namespace GPIO {
 
         void write(wchar_t ch);
 
-        /// write a string (UT8 Unicode) to the display
+        /// write a string (UTF8 Unicode) to the display. Returns count of real characters written.
 
-        void write(const std::string& s);
+        std::size_t write(const std::string& s);
 
-        /// write a wide string (UT32 Unicode) to the display
+        /// write a wide string (UTF32 Unicode) to the display. Returns count of real characters written.
 
-        void write(const std::wstring& ws);
+        std::size_t write(const std::wstring& ws);
 
         /// write a string (UTF8 Unicode) at pos row, col to the display, fill with spaces to the right
         /// until width width of the string

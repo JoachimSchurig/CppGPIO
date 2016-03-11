@@ -132,7 +132,7 @@ InputDetect::InputDetect(const gpiovec_t& gpios, GPIO_EDGE mode)
     if (GPIOBase::simulation()) return;
     if (m_gpiovec.empty()) return;
     
-    // open export interface - it may be reused mutltiple times in the loop below
+    // open export interface - it may be reused multiple times in the loop below
 
     Tools::AutoFile fexp("/sys/class/gpio/export", O_WRONLY);
 
@@ -215,6 +215,8 @@ bool InputDetect::start()
     if (m_pollvec.empty()) return false;
 
     // no - start the thread now
+
+    m_terminate = false;
 
     m_waiter = std::make_unique<std::thread>(&InputDetect::event_loop, this);
 
