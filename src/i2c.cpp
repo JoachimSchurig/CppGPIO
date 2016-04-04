@@ -29,10 +29,6 @@
 #include <cerrno>
 #include <sys/ioctl.h>
 #include <fcntl.h>
-#ifdef HAVE_I2C_HEADERS
-#include <linux/i2c.h>
-#include <linux/i2c-dev.h>
-#endif
 #include <unistd.h>
 #include <stdexcept>
 
@@ -46,7 +42,6 @@ class I2CError : public std::runtime_error
     using std::runtime_error::runtime_error;
 };
 
-#ifndef HAVE_I2C_HEADERS
 enum {
     I2C_SLAVE                   = 0x0703,
     I2C_SMBUS                   = 0x0720,
@@ -70,7 +65,6 @@ struct i2c_smbus_ioctl_data {
     uint32_t size;
     i2c_smbus_data *data;
 };
-#endif
 
 static inline void i2c_smbus(int fd, char rw, uint8_t command, int size, union i2c_smbus_data *data)
 {

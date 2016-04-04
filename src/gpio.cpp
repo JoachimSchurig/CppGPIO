@@ -63,6 +63,10 @@ volatile unsigned long* GPIOBase::bsc1_addr;
 volatile unsigned long* GPIOBase::st_addr;
 Mutex GPIOBase::pullupdown_mutex;
 
+enum {
+    GPIO_MEM_BLOCK_SIZE = 4 * 1024
+};
+
 enum REG_BASE {
     ST_BASE         = 0x3000,
     GPIO_PADS       = 0x100000,
@@ -577,7 +581,7 @@ void GPIOBase::init()
 
             if (!want_full_mapping && fd.open_nothrow("/dev/gpiomem", O_RDWR | O_SYNC)) {
 
-                gpio_addr = static_cast<volatile unsigned long*>(::mmap(nullptr, BLOCK_SIZE,
+                gpio_addr = static_cast<volatile unsigned long*>(::mmap(nullptr, GPIO_MEM_BLOCK_SIZE,
                                                                         (PROT_READ | PROT_WRITE),
                                                                         MAP_SHARED, *fd, 0));
                 if (gpio_addr == MAP_FAILED) throw GPIOError("mmap failed on /dev/gpiomem");

@@ -252,8 +252,6 @@ namespace GPIO {
         static bool simulate;
         static bool want_full_mapping;
         static bool gpio_only;
-        static constexpr unsigned long BLOCK_SIZE = 4 * 1024;
-        static constexpr unsigned long PAGE_SIZE  = 4 * 1024;
         static unsigned long peripherals_base;
         static unsigned long peripherals_size;
         static std::unique_ptr<unsigned long[]> peripherals_sim;
