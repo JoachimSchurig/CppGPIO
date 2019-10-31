@@ -84,7 +84,7 @@ CppGPIO is open source. The terms of the BSD license apply. Copyright (c) 2016 J
 The following examples are taken from demo.cpp in this project.
 
 #### Writing to a digital output
-```
+```cpp
 #include <chrono>
 #include <cppgpio.hpp>
 
@@ -122,7 +122,7 @@ and the initialisation mode.
 
 It could e.g. dim a LED on and off.
 
-```
+```cpp
 #include <chrono>
 #include <cppgpio.hpp>
 
@@ -161,7 +161,7 @@ rotary dial with integrated push button. We connect callables
 rotary and button classes, and have them called whenever an
 event occurs. Remark there is no polling, and no control loop.
 
-```
+```cpp
 #include <string>
 #include <chrono>
 #include <stdlib.h>
