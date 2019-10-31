@@ -28,7 +28,7 @@ of e.g. a switch, but can simply register a function from your own class that wi
 when the state changes. This sounds complicated but is actually quite simple with C++11/14 features like lambda
 expressions. The demo.cpp file has samples for this.
 
-The speed of the library is at the upper limit of the hardware capabilities of the Raspberry Pi (2). Only 12 
+The speed of the library is at the upper limit of the hardware capabilities of the Raspberry Pi (2). Only 12
 nanoseconds are needed to switch an output pin on or off. This results in a 44.67 Mhz square wave output
 just by soft control.
 
@@ -71,7 +71,7 @@ the methods "intellisensed", with documentation. If in doubt, just look at the h
 In the following days I may be adding doxygen generated documentation from the source files.
 
 ### Supported operating environments
-The only GPIO model is currently the BCM2835 as used in the Raspberry Pi boards. It adapts automatically to the 
+The only GPIO model is currently the BCM2835 as used in the Raspberry Pi boards. It adapts automatically to the
 various versions (I have it only tested though on a B, A+, and 2 B). The code itself should compile fine on any
 OS with a C++14 compiler. I typically develop and test build my projects on OSX with XCode, and then copy them
 to the Pi. This works because the GPIO automatically switches to simulation mode when not on Linux
@@ -95,23 +95,23 @@ int main()
   // use gpio #18
 
   DigitalOut out(18);
-  
+
   // switch output to logical 1 (3.3V)
 
   out.on();
-  
+
   // wait some time
-  
+
   std::this_thread::sleep_for(std::chrono::milliseconds(1));
-  
+
   // switch it off again
-  
+
   out.off();
 
   return 0;
 }
 ```
-When DigitalOut goes out of scope, the port is automatically 
+When DigitalOut goes out of scope, the port is automatically
 reset to input mode and any resource associated with it is freed
 
 #### Example with a PWM output
@@ -131,25 +131,25 @@ using namespace GPIO;
 int main()
 {
   // create PWM on GPIO 23, set range to 100, inital value to 0
-  
+
   PWMOut pwm(23, 100, 0);
-  
+
   // now dim a LED 20 times from off to on to off
-  
+
   for (int l = 0; l < 20; ++l) {
-  
+
     for (int p = 0; p < 100; ++p) {
       pwm.set_ratio(p);
       std::this_thread::sleep_for(std::chrono::milliseconds(5));
     }
-    
+
     for (int p = 100; p > 0; --p) {
       pwm.set_ratio(p);
       std::this_thread::sleep_for(std::chrono::milliseconds(5));
     }
-    
+
   }
-  
+
   return 0;
 }
 ```
@@ -203,7 +203,7 @@ private:
     HitachiLCD lcd;
     RotaryDial dial;
     PushButton push;
-    
+
     void dialed(bool up, long value)
     {
         std::string out = "Value: ";
@@ -218,17 +218,17 @@ private:
             exit(0);
         }
     }
-    
+
     void pushed()
     {
         lcd.write(1, 0, "Button: pushed");
     }
-    
+
     void released(std::chrono::nanoseconds nano)
     {
         lcd.write(1, 0, "Button: released");
     }
-    
+
 };
 
 
@@ -240,13 +240,13 @@ int main()
 
   // the rotary object will function properly on any
   // event alltough the main thread will now sleep for an hour
-  
+
   std::this_thread::sleep_for(std::chrono::hours(1));
-  
+
   return 0;
 }
 
 ```
-When Rotary1 goes out of scope, all GPIO objects used inside are 
+When Rotary1 goes out of scope, all GPIO objects used inside are
 properly reset and freed.
 
