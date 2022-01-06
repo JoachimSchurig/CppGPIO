@@ -23,7 +23,8 @@
 //  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-
+#include <stdio.h>
+#include <bcm_host.h>
 #include <sys/mman.h>
 #include <vector>
 #include <memory>
@@ -598,26 +599,11 @@ void GPIOBase::init()
                 // If the file does not exist it shall be assumed 0x20000000 and the size with 0x01000000
                 // (which was the address on the raspi 1 versions)
 
-                if (!fd.open_nothrow("/proc/device-tree/soc/ranges", O_RDONLY)) {
-
-                    // this is apparently a raspi 1 with an old kernel
-
-                    peripherals_base = 0x20000000;
-                    peripherals_size = 0x01000000;
-
-                } else {
-
-                    // else read base address at pos 4
-                    fd.seek(4, SEEK_SET);
-                    fd.read(peripherals_base);
-                    fd.read(peripherals_size);
-
-                    fd.close();
-
-                    Tools::byteswap(peripherals_base);
-                    Tools::byteswap(peripherals_size);
-
-                }
+	            peripherals_base = bcm_host_get_peripheral_address();
+	            peripherals_size = bcm_host_get_peripheral_size();
+		            
+	            if (!peripherals_base) throw GPIOError("cannot read SOC peripherals base address");
+	            if (!peripherals_size) throw GPIOError("cannot read SOC peripherals size");
 
                 if (!peripherals_base) throw GPIOError("cannot read SOC peripherals base address");
                 if (!peripherals_size) throw GPIOError("cannot read SOC peripherals size");
