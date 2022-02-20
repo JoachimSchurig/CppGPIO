@@ -610,6 +610,15 @@ void GPIOBase::init()
                     // else read base address at pos 4
                     fd.seek(4, SEEK_SET);
                     fd.read(peripherals_base);
+
+					if (peripherals_base == 0) {
+						// on the raspberry pi 4 the base is at pos 8, not 4,
+						// and the size is at pos 12, not 8
+						// see https://github.com/raspberrypi/userland/blob/master/host_applications/linux/libs/bcm_host/bcm_host.c
+						// in bcm_host_get_peripheral_address()
+						fd.read(peripherals_base);
+					}
+
                     fd.read(peripherals_size);
 
                     fd.close();
