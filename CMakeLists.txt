@@ -42,7 +42,6 @@ set(CMAKE_CONFIG
 
 set(LIBHEADERS
 	include/cppgpio/buttons.hpp
-	include/cppgpio/font.hpp
 	include/cppgpio/gpio.hpp
 	include/cppgpio/i2c.hpp
 	include/cppgpio/lcd.hpp
@@ -60,7 +59,6 @@ set(INTERNAL_HEADERS
 
 set(SOURCES
 	src/buttons.cpp
-	src/font.cpp
 	src/gpio.cpp
 	src/i2c.cpp
 	src/lcd.cpp
