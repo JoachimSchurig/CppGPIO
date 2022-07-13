@@ -1,6 +1,17 @@
 # CppGPIO
 C++14 GPIO library for Raspberry Pi and other embedded systems
 
+### ***************************************************************************************************
+## NOTE (by Mariwan):
+This fork contains some updates to the library. The library failed to provide any kind of digitl read directly. "getstate" which is a function in the DigitlIn is not working. 
+I added readValue function to get the actual reading of the pin. 
+Be aware about pull up/pull down. You need to know when you should use them or avoid them. 
+Since the author, didn't update the library while there are (question, I think RP ..etc) I decided to update the library with the mentioned updates. 
+There were some bugs like not including the main Linux library which is added to many files and other bugs. 
+Further developing of this library might be difficult task for me but I might add or fix other issues if I find them.
+
+### ***************************************************************************************************
+
 ### What is CppGPIO
 CppGPIO is a C++ library for the GPIOs of embedded systems like the Raspberry Pi written entirely in the
 modern C++ dialect C++14.
