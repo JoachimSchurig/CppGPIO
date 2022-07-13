@@ -33,7 +33,7 @@
 #include <cppgpio/i2c.hpp>
 
 #include "tools.hpp"
-
+#include <unistd.h>
 
 using namespace GPIO;
 
@@ -152,14 +152,14 @@ void HitachiLCDBase::int_data(unsigned char out) const
 void HitachiLCDBase::int_command_nibble(unsigned char out) const
 {
     int_out_nibble(false, out);
-    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    usleep(2);
 }
 
 void HitachiLCDBase::int_command(unsigned char out) const
 {
     int_out_nibble(false, out >> 4);
     int_out_nibble(false, out & 0x0F);
-    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    usleep(2);
 }
 
 /*** medium level functions using above low level infrastructure ***/
@@ -184,13 +184,13 @@ void HitachiLCDBase::int_clear()
 {
     int_command(LCD_CLEAR);
     int_command(LCD_HOME);
-    std::this_thread::sleep_for(std::chrono::milliseconds(3));
+    usleep(3);
 }
 
 void HitachiLCDBase::int_home()
 {
     int_command(LCD_HOME);
-    std::this_thread::sleep_for(std::chrono::milliseconds(3));
+    usleep(3);
 }
 
 void HitachiLCDBase::int_display(bool display_on, bool cursor_on, bool cursor_blink)

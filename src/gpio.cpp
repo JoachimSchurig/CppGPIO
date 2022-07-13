@@ -27,6 +27,7 @@
 #include <sys/mman.h>
 #include <vector>
 #include <memory>
+#include <unistd.h>
 
 #include <cppgpio/gpio.hpp>
 #include "tools.hpp"
@@ -473,7 +474,8 @@ void GPIOBase::SoftThread::run_tone()
         unsigned int local_mark = m_mark;
         // terminate?
         if (local_mark == 0 && m_space == 0) return;
-        if (local_mark == 0) std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        if (local_mark == 0) 
+                     usleep(1);
         else {
             int_set(m_gpio);
             std::this_thread::sleep_for(std::chrono::microseconds(500000 / local_mark));
