@@ -79,6 +79,7 @@ namespace GPIO {
         gpiovec_t m_gpiovec;
         bool m_terminate;
         std::unique_ptr<std::thread> m_waiter;
+        bool m_use_gpiod = false;
 
         /// the internal function that actually waits for status changes
 

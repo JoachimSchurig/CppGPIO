@@ -34,6 +34,17 @@ endif()
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
+# Optional libgpiod for Pi 5 GPIO support
+find_package(PkgConfig QUIET)
+if(PkgConfig_FOUND)
+    pkg_check_modules(LIBGPIOD libgpiod)
+endif()
+if(LIBGPIOD_FOUND)
+    message(STATUS "libgpiod ${LIBGPIOD_VERSION} found — Pi 5 GPIO support enabled")
+else()
+    message(STATUS "libgpiod not found — Pi 5 GPIO support disabled (install libgpiod-dev to enable)")
+endif()
+
 # INPUT FILES
 
 set(CMAKE_CONFIG
@@ -81,6 +92,14 @@ set_target_properties(cppgpio-static PROPERTIES OUTPUT_NAME cppgpio)
 target_link_libraries(cppgpio Threads::Threads)
 target_link_libraries(cppgpio-static Threads::Threads)
 
+if(LIBGPIOD_FOUND)
+    foreach(_trgt cppgpio cppgpio-static)
+        target_compile_definitions(${_trgt} PRIVATE HAVE_LIBGPIOD)
+        target_link_libraries(${_trgt} ${LIBGPIOD_LIBRARIES})
+        target_include_directories(${_trgt} PRIVATE ${LIBGPIOD_INCLUDE_DIRS})
+    endforeach()
+endif()
+
 target_include_directories(cppgpio
 	PUBLIC
 	$<INSTALL_INTERFACE:include>
@@ -94,6 +113,12 @@ target_include_directories(cppgpio-static
 	PRIVATE
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 )
+
+# DEMO
+
+add_executable(demo demo.cpp)
+target_include_directories(demo PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_link_libraries(demo cppgpio)
 
 # INSTALLATION
 

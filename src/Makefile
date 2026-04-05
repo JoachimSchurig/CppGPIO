@@ -20,10 +20,20 @@ HDRS         := $(HDRS:./%=%)
 OBJS         := $(SRCS:.cpp=.o)
 
 CXX          := g++
-CXXFLAGS     := -Wall -O2 -fPIC -std=c++11 -pthread -I $(includeprefix)
+CXXFLAGS     := -Wall -O2 -fPIC -std=c++20 -pthread -I $(includeprefix)
 
-LDFLAGS :=
+LDFLAGS      :=
 LDLIBS       :=
+
+# Optional libgpiod support (needed for Pi 5 and future models).
+# Requires libgpiod-dev; disabled if not found.
+LIBGPIOD_CFLAGS := $(shell pkg-config --cflags libgpiod 2>/dev/null)
+ifneq ($(LIBGPIOD_CFLAGS),)
+    CXXFLAGS += -DHAVE_LIBGPIOD $(LIBGPIOD_CFLAGS)
+    $(info libgpiod found — Pi 5 GPIO support enabled)
+else
+    $(info libgpiod not found — Pi 5 GPIO support disabled (install libgpiod-dev to enable))
+endif
 
 
 all: lib

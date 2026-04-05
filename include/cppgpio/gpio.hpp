@@ -126,6 +126,19 @@ namespace GPIO {
 
         static bool simulation() { return simulate; }
 
+        /// Returns true if the GPIO character device (libgpiod) must be used
+        /// for event detection — currently true on Pi 5.
+        static bool needs_gpiod_events();
+
+        /// Request edge-event monitoring on the shared libgpiod chip handle.
+        /// Returns the poll-able file descriptor, or -1 on error / non-Pi5.
+        /// Used by InputDetect so that DigitalIn debouncing can share the same
+        /// line handle without triggering an exclusive-access conflict.
+        static int gpiod_event_fd(unsigned int gpio, GPIO_EDGE edge);
+
+        /// Release an event-monitored line; called when InputDetect is destroyed.
+        static void gpiod_release_event(unsigned int gpio);
+
         /// Call before any instantiation of a GPIOBase object if you want to
         /// force full register access via IO mapping even when /dev/gpiomem is
         /// available. When you switch into this mode and are not running as root,
@@ -267,6 +280,37 @@ namespace GPIO {
 
         static Mutex pullupdown_mutex;
 
+        // Pi model auto-detected at first initialisation
+        enum class PiModel : uint8_t { UNKNOWN, PI1_TO_3, PI4, PI5, SIMULATION };
+        static PiModel pi_model;
+
+        // sysfs PWM support: non-empty when dtoverlay=pwm[-2chan] is active
+        static bool use_sysfs_pwm;
+        static std::string sysfs_pwm_chip_path;   // e.g. "/sys/class/pwm/pwmchip0"
+
+        // duty-cycle cache, needed to recalculate period/duty when range or clock changes
+        static unsigned int pwm_duty_val[PWM_CHANNELS];
+
+        // fallback dispatch when gpio_addr == nullptr (Pi 5 / libgpiod path)
+        static void backend_set(unsigned int gpio);
+        static void backend_clear(unsigned int gpio);
+        static bool backend_read(unsigned int gpio);
+
+        // helpers that need access to private members — defined in gpio.cpp
+        static PiModel detect_pi_model();
+        static void sysfs_pwm_ensure_exported(int channel);
+        static void sysfs_apply_pwm(int channel);
+
+        // True for Pi 5 and any unknown/future model: use libgpiod, not mmap.
+        // Whitelisting Pi 1-4 (known mmap models) is safer than blacklisting
+        // future SoCs we don't know about yet.
+        static bool use_gpiod_backend()
+        {
+            return pi_model != PiModel::PI1_TO_3
+                && pi_model != PiModel::PI4
+                && pi_model != PiModel::SIMULATION;
+        }
+
         class SoftThread {
         private:
             std::unique_ptr<std::thread> m_thread;
@@ -322,17 +366,20 @@ namespace GPIO {
 
         static inline void int_set(unsigned int gpio)
         {
-            *(gpio_addr + 7 + gpio/32) = 1 << (gpio%32);
+            if (gpio_addr) *(gpio_addr + 7 + gpio/32) = 1 << (gpio%32);
+            else backend_set(gpio);
         }
 
         static inline void int_clear(unsigned int gpio)
         {
-            *(gpio_addr + 10 + gpio/32) = 1 << (gpio%32);
+            if (gpio_addr) *(gpio_addr + 10 + gpio/32) = 1 << (gpio%32);
+            else backend_clear(gpio);
         }
 
         static inline bool int_read(unsigned int gpio)
         {
-            return *(gpio_addr + 13 + gpio/32) &= (1 << (gpio%32));
+            if (gpio_addr) return (*(gpio_addr + 13 + gpio/32)) & (1u << (gpio%32));
+            return backend_read(gpio);
         }
 
         void check_hard_pwm(unsigned int gpio) const;

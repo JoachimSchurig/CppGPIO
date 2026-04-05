@@ -35,9 +35,12 @@ libnamesover := $(libnameso).1
 libnamesoverx:= $(libnameso).1.0.0
 
 CXX          := g++
-CXXFLAGS     := -Wall -O2 -std=c++11 -pthread
+CXXFLAGS     := -Wall -O2 -std=c++20 -pthread
 LDFLAGS      :=
 LDLIBS       := -lpthread -lcppgpio
+
+# Optional libgpiod support — needed for the shared library link step.
+LIBGPIOD_LIBS := $(shell pkg-config --libs libgpiod 2>/dev/null)
 
 SUBDIRS      := $(sourceprefix)
 
@@ -58,7 +61,7 @@ all: lib
 lib:
 	+@$(MAKE_SUBDIRS)
 	$(LIBTOOL) $(libnamea) $(OBJS)
-	$(CXX) -shared -Wl,-soname,$(libnameso) -o $(libnamesoverx) $(OBJS)
+	$(CXX) -shared -Wl,-soname,$(libnameso) -o $(libnamesoverx) $(OBJS) $(LIBGPIOD_LIBS)
 
 $(appname): demo.o
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(appname) demo.o $(LDLIBS)

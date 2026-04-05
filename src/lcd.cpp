@@ -214,7 +214,7 @@ void HitachiLCDBase::backlight(bool on)
 
 void HitachiLCDBase::init_display()
 {
-    unsigned char func = LCD_FUNC | LCD_FUNC_DL;
+    unsigned char func = static_cast<unsigned char>(LCD_FUNC) | static_cast<unsigned char>(LCD_FUNC_DL);
 
     // set 4-bit 1-line mode 3 times
 
@@ -227,8 +227,8 @@ void HitachiLCDBase::init_display()
     func = LCD_FUNC;
     int_command_nibble(func >> 4);
 
-    int_command(LCD_ENTRY   | LCD_ENTRY_ID);
-    int_command(LCD_CDSHIFT | LCD_CDSHIFT_RL);
+    int_command(static_cast<unsigned char>(LCD_ENTRY)   | static_cast<unsigned char>(LCD_ENTRY_ID));
+    int_command(static_cast<unsigned char>(LCD_CDSHIFT) | static_cast<unsigned char>(LCD_CDSHIFT_RL));
 
     // and set display to init configuration
 

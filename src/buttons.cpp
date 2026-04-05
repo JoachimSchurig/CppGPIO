@@ -50,6 +50,10 @@
 #include <cppgpio/buttons.hpp>
 #include "tools.hpp"
 
+#ifdef HAVE_LIBGPIOD
+#include <gpiod.h>
+#endif
+
 #if __cplusplus <= 201103L
 // helper if the current compiler only supports C++11
 #include "make_unique.hpp"
@@ -61,17 +65,18 @@ using namespace GPIO;
 
 void InputDetect::event_loop()
 {
-    // clear pending events
+    // clear pending events (sysfs path only — gpiod event fds don't support FIONREAD)
 
+#ifdef HAVE_LIBGPIOD
+    if (!m_use_gpiod)
+#endif
     for (auto& it : m_pollvec) {
-
         int count;
         ::ioctl(it.fd, FIONREAD, &count);
         for (int i = 0; i < count; ++i) {
             char ch;
             ::read(it.fd, &ch, 1);
         }
-        
     }
 
     // start the event loop
@@ -85,8 +90,15 @@ void InputDetect::event_loop()
         // shall we end execution?
 
         if (m_terminate) {
-            for (auto& it : m_pollvec) {
-                ::close(it.fd);
+#ifdef HAVE_LIBGPIOD
+            if (m_use_gpiod) {
+                // fds are owned by the shared chip handle — do not close them here;
+                // lines are released in the destructor via gpiod_release_event().
+                m_pollvec.clear();
+            } else
+#endif
+            {
+                for (auto& it : m_pollvec) ::close(it.fd);
             }
             return;
         }
@@ -103,11 +115,18 @@ void InputDetect::event_loop()
 
             if (it.revents != 0) {
                 
-                // clear the event - read a byte and seek back to start
-
-                unsigned char ch;
-                ::read(it.fd, &ch, 1);
-                ::lseek(it.fd, 0, SEEK_SET);
+#ifdef HAVE_LIBGPIOD
+                if (m_use_gpiod) {
+                    struct gpiod_line_event ev;
+                    gpiod_line_event_read_fd(it.fd, &ev);
+                } else
+#endif
+                {
+                    // clear the event - read a byte and seek back to start
+                    unsigned char ch;
+                    ::read(it.fd, &ch, 1);
+                    ::lseek(it.fd, 0, SEEK_SET);
+                }
                 
                 // and call the virtual trigger with the detected pin
 
@@ -131,7 +150,24 @@ InputDetect::InputDetect(const gpiovec_t& gpios, GPIO_EDGE mode)
 {
     if (GPIOBase::simulation()) return;
     if (m_gpiovec.empty()) return;
-    
+
+#ifdef HAVE_LIBGPIOD
+    if (GPIOBase::needs_gpiod_events()) {
+        m_use_gpiod = true;
+        // Use the shared chip handle from GPIOBase so that DigitalIn's debounce reads
+        // (which call GPIOBase::read on the same handle) don't conflict with our event
+        // request — gpiod_request_input() skips re-requesting event-monitored lines.
+        for (auto gpio_num : m_gpiovec) {
+            int fd = GPIOBase::gpiod_event_fd(gpio_num, mode);
+            if (fd < 0) {
+                throw GPIOError("libgpiod: cannot open event fd for GPIO " + std::to_string(gpio_num));
+            }
+            m_pollvec.push_back({ fd, POLLIN, 0 });
+        }
+        return;  // skip sysfs path
+    }
+#endif
+
     // open export interface - it may be reused multiple times in the loop below
 
     Tools::AutoFile fexp("/sys/class/gpio/export", O_WRONLY);
@@ -251,6 +287,13 @@ InputDetect::~InputDetect()
 
     if (GPIOBase::simulation()) return;
     if (m_gpiovec.empty()) return;
+
+#ifdef HAVE_LIBGPIOD
+    if (m_use_gpiod) {
+        for (auto gpio_num : m_gpiovec) GPIOBase::gpiod_release_event(gpio_num);
+        return;
+    }
+#endif
 
     // open unexport interface
 
