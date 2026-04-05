@@ -483,14 +483,15 @@ void GPIOBase::int_set_mode(unsigned int gpio, FSEL mode)
     // first clear all bits for this gpio by declaring it an input
     // (and thus removing all ALT and output bits)
 
-    *(gpio_addr + ((gpio) / 10)) &= ~(7 << (((gpio)%10)*3));
+    volatile unsigned long* reg = gpio_addr + (gpio / 10);
+    unsigned long val = *reg;
+    val &= ~(7UL << ((gpio % 10) * 3));
 
     if (mode != FSEL::INPUT) {
-
-        // then set the mode
-
-        *(gpio_addr + (((gpio) / 10))) |= (static_cast<unsigned long>(mode) << (((gpio)%10)*3));
+        val |= static_cast<unsigned long>(mode) << ((gpio % 10) * 3);
     }
+
+    *reg = val;
 }
 
 void GPIOBase::mode(unsigned int gpio, GPIO_MODE mode) const
